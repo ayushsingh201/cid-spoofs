@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>CID Spoof</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;user-select:none}
+body{
+min-height:100vh;background:radial-gradient(circle at top,#202b4d,#070a13 70%);
+color:white;font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center
+}
+#app{width:100%;max-width:1050px;padding:15px}
+.hidden{display:none!important}
+
+/* LOBBY */
+#lobby{text-align:center}
+.logo{
+font-size:clamp(40px,8vw,75px);font-weight:900;color:#ffd92f;
+text-shadow:0 4px #9c6900,0 0 25px #ffd92f55
+}
+.subtitle{color:#aeb9d5;margin:5px}
+.case{
+max-width:650px;margin:22px auto;padding:18px;border:2px solid #344269;
+border-radius:18px;background:#11182c
+}
+.case h2{color:#ff4d5a;margin-bottom:8px}
+.case p{line-height:1.5;color:#c5cde0}
+.characters{
+display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin:25px 0
+}
+.character{
+width:170px;padding:14px;border:3px solid #34405f;border-radius:17px;
+background:#121a30;cursor:pointer;transition:.2s
+}
+.character:hover,.character.selected{
+transform:translateY(-6px);border-color:#28ff8a;
+box-shadow:0 0 25px #28ff8a44
+}
+.character img,.fallback{
+width:110px;height:110px;object-fit:cover;border-radius:12px;
+margin:auto;background:#252e4b
+}
+.fallback{display:flex;align-items:center;justify-content:center;font-size:55px}
+.character h3{margin-top:10px}
+.role{color:#8d99b9;font-size:13px;margin-top:4px}
+#selection{color:#aab5d1;margin:15px}
+button{
+border:0;padding:14px 35px;border-radius:11px;font-size:17px;
+font-weight:bold;cursor:pointer;background:#ffd92f;color:#151515;
+box-shadow:0 4px #a56f00
+}
+
+/* GAME */
+.topbar{
+display:flex;justify-content:space-between;align-items:center;gap:10px;
+flex-wrap:wrap;margin-bottom:10px
+}
+.title{font-size:clamp(25px,6vw,40px);font-weight:900;color:#ffd92f}
+.stats{display:flex;gap:7px;flex-wrap:wrap}
+.stat{
+background:#151d35;border:1px solid #364261;padding:8px 11px;
+border-radius:8px;font-size:13px
+}
+#score{color:#ffd92f;font-weight:bold}
+#power{color:#28ff8a;font-weight:bold}
+#stun{color:#5eb7ff;font-weight:bold}
+.canvasbox{
+width:100%;display:flex;justify-content:center;padding:7px;
+background:#05070d;border:3px solid #303c61;border-radius:14px
+}
+canvas{display:block;width:100%;height:auto;image-rendering:pixelated;border-radius:7px}
+.controls{
+margin-top:10px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap
+}
+.info{
+background:#11182c;border:1px solid #303c5d;padding:8px 12px;
+border-radius:8px;font-size:12px
+}
+.help{text-align:center;color:#8995b3;font-size:12px;margin-top:8px}
+
+/* GAME OVER */
+#gameOver{
+position:fixed;inset:0;background:#03050cdc;display:flex;
+align-items:center;justify-content:center;z-index:20;padding:20px
+}
+.over{
+text-align:center;background:#131a2e;border:3px solid #ff4d5a;
+border-radius:20px;padding:35px;max-width:500px;width:100%
+}
+.over h1{
+font-size:clamp(50px,11vw,85px);color:#ff4d5a;
+text-shadow:0 4px #741821
+}
+.over p{margin-top:8px}
+.final{font-size:23px;color:#ffd92f;margin:20px}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<!-- ================= LOBBY ================= -->
+
+<section id="lobby">
+
+<div class="logo">CID SPOOF</div>
+<div class="subtitle">THE MOST SERIOUSLY UN-SERIOUS CASE</div>
+
+<div class="case">
+<h2>🚨 CASE FILE: THE GREAT CHASE</h2>
+<p>
+Choose your Hero. The other two characters become automatic CID
+Villains. Collect evidence, grab power-ups and escape!
+</p>
+</div>
+
+<h2>Choose Your Hero</h2>
+
+<div class="characters">
+
+    <div class="character" data-player="0">
+        <img src="sumit.jpeg"
+             alt="Sumit"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="fallback" style="display:none">😎</div>
+        <h3>Sumit</h3>
+        <div class="role">Choose Hero</div>
+    </div>
+
+    <div class="character" data-player="1">
+        <img src="arya.jpeg"
+             alt="Arya"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="fallback" style="display:none">🕵️</div>
+        <h3>Arya</h3>
+        <div class="role">Choose Hero</div>
+    </div>
+
+    <div class="character" data-player="2">
+        <img src="rishabh.jpeg"
+             alt="Rishabh"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="fallback" style="display:none">😂</div>
+        <h3>Rishabh</h3>
+        <div class="role">Choose Hero</div>
+    </div>
+
+</div>
+
+<div id="selection">Select a character to become the Hero.</div>
+
+<button id="start">🚨 START CASE</button>
+
+</section>
+
+
+<!-- ================= GAME ================= -->
+
+<section id="game" class="hidden">
+
+<div class="topbar">
+<div class="title">🕵️ CID SPOOF</div>
+
+<div class="stats">
+<div class="stat">SCORE: <span id="score">0</span></div>
+<div class="stat"><span id="power">NORMAL</span></div>
+<div class="stat">STUN: <span id="stun">READY</span></div>
+</div>
+</div>
+
+<div class="canvasbox">
+<canvas id="canvas"></canvas>
+</div>
+
+<div class="controls">
+<div class="info">🟢 HERO: WASD</div>
+<div class="info">🔴 Villain AI: ACTIVE</div>
+<div class="info">🔵 Villain AI: ACTIVE</div>
+</div>
+
+<div class="help">
+SPACE = Stun Villains | Yellow = Evidence | Blue = Speed | Red = Daya Slap
+</div>
+
+</section>
+</div>
+
+
+<!-- ================= GAME OVER ================= -->
+
+<div id="gameOver" class="hidden">
+
+<div class="over">
+<h1>BUSTED!</h1>
+<p>The CID caught the Hero!</p>
+
+<div class="final">
+Final Score: <span id="finalScore">0</span>
+</div>
+
+<button id="restart">🔄 PLAY AGAIN</button>
+</div>
+
+</div>
+
+
+<!-- ================= AUDIO ================= -->
+
+<audio id="introAudio" src="subway-surfers.mp3" loop></audio>
+<audio id="closeChaseAudio" src="kyu-re-madarchod-cid.mp3"></audio>
+<audio id="chaseEffectAudio" src="cid-le-mdc.mp3" ></audio>
+<audio id="extraChaseAudio" src="phir-teri-maiya-chodta-hu-cid.mp3" loop></audio>
+<audio id="speedAudio" src="audio/speed.mp3"></audio>
+<audio id="slapAudio" src="audio/slap.mp3"></audio>
+<audio id="stunAudio" src="audio/stun.mp3"></audio>
+
+
+<script>
+
+/* =========================================================
+   CID SPOOF - SINGLE PLAYER
+   HERO = HUMAN
+   VILLAINS = AUTOMATIC AI
+========================================================= */
+
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+const lobby=document.getElementById("lobby");
+const game=document.getElementById("game");
+const gameOver=document.getElementById("gameOver");
+
+const scoreEl=document.getElementById("score");
+const finalScore=document.getElementById("finalScore");
+const powerEl=document.getElementById("power");
+const stunEl=document.getElementById("stun");
+
+const introAudio =
+    document.getElementById("introAudio");
+
+const closeChaseAudio =
+    document.getElementById("closeChaseAudio");
+
+const chaseEffectAudio =
+    document.getElementById("chaseEffectAudio");
+
+const extraChaseAudio =
+    document.getElementById("extraChaseAudio");
+
+const speedAudio =
+    document.getElementById("speedAudio");
+
+const slapAudio =
+    document.getElementById("slapAudio");
+
+const stunAudio =
+    document.getElementById("stunAudio");
+
+    /* =========================================================
+   CHASE AUDIO CONTROL
+========================================================= */
+
+let chaseAudioRunning = false;
+
+let chaseWaiting = false;
+
+let chaseTimer = null;
+/* =========================================================
+   PLAYER IMAGES
+========================================================= */
+
+const playerImages = [
+    new Image(),
+    new Image(),
+    new Image()
+];
+
+playerImages[0].src = "sumit.jpeg"; // Sumit
+playerImages[1].src = "arya.jpeg"; // Arya
+playerImages[2].src = "rishabh.jpeg"; // Rishabh
+/* =========================================================
+   MAZE
+========================================================= */
+
+const maze=[
+"############################",
+"#............##............#",
+"#.####.#####.##.#####.####.#",
+"#..........................#",
+"#.####.##.########.##.####.#",
+"#......##....##....##......#",
+"######.#####.##.#####.######",
+"#............##............#",
+"#.####.#####....#####.####.#",
+"#..........................#",
+"#.####.##.########.##.####.#",
+"#......##....##....##......#",
+"######.#####.##.#####.######",
+"#..........................#",
+"#.####.#####....#####.####.#",
+"#............##............#",
+"############################"
+];
+
+const ROWS=maze.length;
+const COLS=maze[0].length;
+
+let TILE=25;
+
+function resize(){
+const w=Math.min(innerWidth-25,960);
+TILE=Math.max(12,Math.floor(w/COLS));
+canvas.width=COLS*TILE;
+canvas.height=ROWS*TILE;
+}
+resize();
+addEventListener("resize",resize);
+
+
+/* =========================================================
+   GAME VARIABLES
+========================================================= */
+
+let hero,villain1,villain2;
+let selectedHero=null;
+let dots=[];
+let speedTokens=[];
+let slapTokens=[];
+
+let score=0;
+let running=false;
+let ended=false;
+
+let speedUntil=0;
+let slapUntil=0;
+
+let stunReady=true;
+let frozenUntil=0;
+
+let lastAI=0;
+let chasePlaying=false;
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+function player(id, x, y, color, emoji, name) {
+
+    return {
+        id,
+        name,
+
+        x,
+        y,
+
+        spawnX: x,
+        spawnY: y,
+
+        color,
+        emoji,
+
+        // Image belonging to this player
+        image: playerImages[id],
+
+        lastMove: 0,
+
+        moveDelay: 180,
+
+        speedBoost: false,
+
+        attackMode: false
+    };
+}
+
+/*
+   Spawn positions are deliberately separated.
+*/
+
+const spawns=[
+{x:1,y:1},
+{x:26,y:1},
+{x:14,y:13}
+];
+
+
+/* =========================================================
+   WALL CHECK
+========================================================= */
+
+function wall(x,y){
+
+const mid=Math.floor(ROWS/2);
+
+/* Left/right tunnel */
+if(y===mid && (x<0||x>=COLS))return false;
+
+if(x<0||x>=COLS||y<0||y>=ROWS)return true;
+
+return maze[y][x]==="#";
+}
+
+
+/* =========================================================
+   TUNNEL
+========================================================= */
+
+function tunnel(p){
+
+const mid=Math.floor(ROWS/2);
+
+if(p.y!==mid)return;
+
+if(p.x<0)p.x=COLS-1;
+if(p.x>=COLS)p.x=0;
+}
+
+
+/* =========================================================
+   CONTINUOUS HERO MOVEMENT
+   Press a direction once and the Hero keeps moving.
+========================================================= */
+
+let heroDirection = { dx: 0, dy: 0 };
+let requestedDirection = { dx: 0, dy: 0 };
+
+function setHeroDirection(dx, dy) {
+    if (!running || ended) return;
+
+    // Remember the direction the player wants to go.
+    requestedDirection = { dx, dy };
+
+    // Try immediately.
+    tryChangeHeroDirection();
+}
+
+function tryChangeHeroDirection() {
+
+    if (!hero) return;
+
+    const nx = hero.x + requestedDirection.dx;
+    const ny = hero.y + requestedDirection.dy;
+
+    // Allow left/right tunnel movement.
+    if (
+        hero.y === Math.floor(ROWS / 2) &&
+        (nx < 0 || nx >= COLS)
+    ) {
+        heroDirection = { ...requestedDirection };
+        return;
+    }
+
+    // Change direction only if the next tile is not a wall.
+    if (!wall(nx, ny)) {
+        heroDirection = { ...requestedDirection };
+    }
+}
+
+
+/* Move Hero automatically according to current direction */
+
+function updateHero() {
+
+    if (!running || ended) return;
+
+    const now = Date.now();
+
+    const delay = hero.speedBoost ? 120 : 180;
+
+    if (now - hero.lastMove < delay) return;
+
+    /*
+       First try the newly requested direction.
+       This makes turning smoother.
+    */
+    if (
+        requestedDirection.dx !== heroDirection.dx ||
+        requestedDirection.dy !== heroDirection.dy
+    ) {
+        tryChangeHeroDirection();
+    }
+
+    const dx = heroDirection.dx;
+    const dy = heroDirection.dy;
+
+    // No direction selected yet.
+    if (dx === 0 && dy === 0) return;
+
+    const nx = hero.x + dx;
+    const ny = hero.y + dy;
+
+    /*
+       LEFT/RIGHT TUNNEL
+    */
+    if (
+        hero.y === Math.floor(ROWS / 2) &&
+        (nx < 0 || nx >= COLS)
+    ) {
+
+        hero.x = nx;
+
+        tunnel(hero);
+
+        hero.lastMove = now;
+
+        afterHeroMove();
+
+        return;
+    }
+
+    /*
+       Wall reached.
+       Stop only if the current direction is blocked.
+    */
+    if (wall(nx, ny)) {
+
+        /*
+           Keep requested direction saved.
+           If the player enters an opening later,
+           the requested direction will automatically activate.
+        */
+
+        return;
+    }
+
+    /*
+       Normal movement.
+    */
+    hero.x = nx;
+    hero.y = ny;
+
+    hero.lastMove = now;
+
+    afterHeroMove();
+}
+
+
+/* =========================================================
+   HERO AFTER MOVEMENT
+========================================================= */
+function afterHeroMove(){
+
+    collectDot();
+
+    collectPowerUps();
+
+    collision();
+
+}
+
+
+/* =========================================================
+   DOTS
+========================================================= */
+
+function createDots(){
+
+dots=[];
+
+for(let y=0;y<ROWS;y++){
+
+for(let x=0;x<COLS;x++){
+
+if(maze[y][x]!=="#"){
+
+let spawn=false;
+
+for(const p of [hero,villain1,villain2]){
+if(p.x===x&&p.y===y)spawn=true;
+}
+
+if(!spawn)dots.push({x,y});
+
+}
+
+}
+
+}
+
+}
+
+
+/* =========================================================
+   POWER UPS
+========================================================= */
+
+function createPowerUps(){
+
+speedTokens=[
+{x:2,y:3},
+{x:25,y:13}
+];
+
+slapTokens=[
+{x:14,y:3},
+{x:13,y:13}
+];
+
+}
+
+
+/* =========================================================
+   COLLECT DOT
+========================================================= */
+
+function collectDot(){
+
+for(let i=dots.length-1;i>=0;i--){
+
+if(dots[i].x===hero.x&&dots[i].y===hero.y){
+
+dots.splice(i,1);
+score+=10;
+scoreEl.textContent=score;
+
+}
+
+}
+
+}
+
+
+/* =========================================================
+   SPEED TOKEN
+========================================================= */
+
+function collectPowerUps(){
+
+for(let i=speedTokens.length-1;i>=0;i--){
+
+const t=speedTokens[i];
+
+if(t.x===hero.x&&t.y===hero.y){
+
+speedTokens.splice(i,1);
+
+hero.speedBoost=true;
+speedUntil=Date.now()+5000;
+
+speedAudio.currentTime=0;
+speedAudio.play().catch(()=>{});
+
+}
+
+}
+
+
+for(let i=slapTokens.length-1;i>=0;i--){
+
+const t=slapTokens[i];
+
+if(t.x===hero.x&&t.y===hero.y){
+
+slapTokens.splice(i,1);
+
+hero.attackMode=true;
+slapUntil=Date.now()+5000;
+
+}
+
+}
+
+}
+
+
+/* =========================================================
+   UPDATE POWER STATUS
+========================================================= */
+
+function updatePower(){
+
+const now=Date.now();
+
+if(now>=speedUntil)hero.speedBoost=false;
+if(now>=slapUntil)hero.attackMode=false;
+
+if(hero.attackMode){
+
+powerEl.textContent=
+"🥊 DAYA SLAP "+Math.ceil((slapUntil-now)/1000)+"s";
+
+}else if(hero.speedBoost){
+
+powerEl.textContent=
+"⚡ SPEED "+Math.ceil((speedUntil-now)/1000)+"s";
+
+}else{
+
+powerEl.textContent="NORMAL";
+
+}
+
+}
+
+
+/* =========================================================
+   BFS PATHFINDING
+=========================================================
+
+   The villains calculate the shortest route from
+   their current position to the Hero.
+
+   This means they:
+   - Cannot walk through walls
+   - Can navigate corridors
+   - Can use the tunnel
+   - Automatically follow the Hero
+========================================================= */
+
+function neighbors(x,y){
+
+const result=[];
+
+const dirs=[
+[0,-1],
+[0,1],
+[-1,0],
+[1,0]
+];
+
+for(const [dx,dy] of dirs){
+
+let nx=x+dx;
+let ny=y+dy;
+
+
+/* Tunnel */
+
+if(y===Math.floor(ROWS/2)){
+
+if(nx<0)nx=COLS-1;
+if(nx>=COLS)nx=0;
+
+}
+
+
+if(!wall(nx,ny)){
+
+result.push({
+x:nx,
+y:ny
+});
+
+}
+
+}
+
+return result;
+}
+
+
+/* =========================================================
+   BFS
+========================================================= */
+
+function findPath(start,target){
+
+const queue=[start];
+
+const visited=new Set();
+
+const previous=new Map();
+
+const key=(x,y)=>x+","+y;
+
+visited.add(key(start.x,start.y));
+
+while(queue.length){
+
+const current=queue.shift();
+
+if(
+current.x===target.x&&
+current.y===target.y
+){
+
+let path=[];
+
+let node=current;
+
+while(
+node.x!==start.x||
+node.y!==start.y
+){
+
+path.unshift(node);
+
+node=previous.get(
+key(node.x,node.y)
+);
+
+}
+
+return path;
+
+}
+
+
+for(const next of neighbors(current.x,current.y)){
+
+const k=key(next.x,next.y);
+
+if(!visited.has(k)){
+
+visited.add(k);
+
+previous.set(
+k,
+current
+);
+
+queue.push(next);
+
+}
+
+}
+
+}
+
+return[];
+
+}
+
+
+/* =========================================================
+   AUTOMATIC VILLAIN AI
+========================================================= */
+
+function updateVillains(){
+
+if(!running||ended)return;
+
+/* Stunned */
+if(Date.now()<frozenUntil)return;
+
+
+/*
+   Recalculate path frequently.
+*/
+
+for(const villain of [villain1,villain2]){
+
+const path=findPath(
+{x:villain.x,y:villain.y},
+{x:hero.x,y:hero.y}
+);
+
+
+/*
+   Villain 1 is slightly faster.
+*/
+
+const delay=villain===villain1?270:330;
+
+if(Date.now()-villain.lastMove<delay)continue;
+
+if(path.length){
+
+const next=path[0];
+
+villain.x=next.x;
+villain.y=next.y;
+
+villain.lastMove=Date.now();
+
+}
+
+}
+
+/* Collision after AI movement */
+collision();
+
+}
+
+
+function collision(){
+
+    if(ended) return;
+
+    for(const villain of [villain1,villain2]){
+
+        if(
+            villain.x === hero.x &&
+            villain.y === hero.y
+        ){
+
+            /*
+               HERO HAS DAYA SLAP
+            */
+
+            if(hero.attackMode){
+
+                villain.x = villain.spawnX;
+                villain.y = villain.spawnY;
+
+                score += 50;
+
+                scoreEl.textContent = score;
+
+                slapAudio.currentTime = 0;
+                slapAudio.play().catch(()=>{});
+
+                /*
+                   Villain is sent back to spawn.
+                   GAME CONTINUES.
+                */
+
+                continue;
+            }
+
+
+            /*
+               VILLAIN ACTUALLY CAUGHT HERO
+            */
+
+            closeChaseAudio.currentTime = 0;
+            closeChaseAudio.play().catch(()=>{});
+
+
+            /*
+               Stop normal chase audio
+            */
+
+            chaseEffectAudio.pause();
+            chaseEffectAudio.currentTime = 0;
+
+            extraChaseAudio.pause();
+            extraChaseAudio.currentTime = 0;
+
+
+            /*
+               Game over
+            */
+
+            endGame();
+
+            return;
+        }
+    }
+}
+
+
+function startNormalChaseAudio() {
+
+    if (!running || ended) return;
+
+    if (chaseAudioRunning || chaseWaiting) return;
+
+    chaseAudioRunning = true;
+
+    /*
+       Play normal chase audio ONCE.
+       It will NOT loop.
+    */
+
+    chaseEffectAudio.currentTime = 0;
+
+    chaseEffectAudio.play().catch(() => {});
+
+
+    /*
+       When the audio finishes,
+       start the 10-second gap.
+    */
+
+    chaseEffectAudio.onended = () => {
+
+        chaseAudioRunning = false;
+
+        if (!running || ended) return;
+
+        startChaseGap();
+
+    };
+
+}
+function startChaseGap() {
+
+    if (!running || ended) return;
+
+    chaseWaiting = true;
+
+
+    /*
+       Play the 4th audio during the gap.
+    */
+
+    extraChaseAudio.currentTime = 0;
+
+    extraChaseAudio.play().catch(() => {});
+
+
+    /*
+       Wait exactly 10 seconds.
+    */
+
+    chaseTimer = setTimeout(() => {
+
+        chaseWaiting = false;
+
+        /*
+           Stop the 4th audio when the
+           next normal chase audio begins.
+        */
+
+        extraChaseAudio.pause();
+        extraChaseAudio.currentTime = 0;
+
+
+        /*
+           Start normal chase audio again.
+        */
+
+        startNormalChaseAudio();
+
+    }, 10000);
+
+}
+
+
+/* =========================================================
+   STUN GRENADE
+========================================================= */
+
+function stun(){
+
+if(!running||ended||!stunReady)return;
+
+stunReady=false;
+
+frozenUntil=Date.now()+3000;
+
+stunAudio.currentTime=0;
+stunAudio.play().catch(()=>{});
+
+}
+
+
+/* =========================================================
+   KEYBOARD CONTROLS
+   Press once = continuous movement.
+========================================================= */
+
+addEventListener("keydown", e => {
+
+    if (!running || ended) return;
+
+    const k = e.key.toLowerCase();
+
+    /*
+       HERO
+    */
+
+    if (k === "w") {
+        e.preventDefault();
+        setHeroDirection(0, -1);
+    }
+
+    else if (k === "s") {
+        e.preventDefault();
+        setHeroDirection(0, 1);
+    }
+
+    else if (k === "a") {
+        e.preventDefault();
+        setHeroDirection(-1, 0);
+    }
+
+    else if (k === "d") {
+        e.preventDefault();
+        setHeroDirection(1, 0);
+    }
+
+    /*
+       STUN GRENADE
+    */
+
+    if (e.code === "Space") {
+        e.preventDefault();
+        stun();
+    }
+
+});
+
+
+/* =========================================================
+   HERO SELECTION
+========================================================= */
+document.querySelectorAll(".character").forEach(card => {
+
+    card.onclick = () => {
+
+        document.querySelectorAll(".character")
+            .forEach(c => c.classList.remove("selected"));
+
+        card.classList.add("selected");
+
+        selectedHero = Number(card.dataset.player);
+
+        const names = [
+            "Sumit",
+            "Arya",
+            "Rishabh"
+        ];
+
+        document.getElementById("selection").textContent =
+            names[selectedHero] + " is now the HERO 🟢";
+    };
+
+});
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+document.getElementById("start").onclick=()=>{
+
+if(selectedHero===null){
+
+alert("Choose your Hero first!");
+return;
+
+}
+
+introAudio.currentTime=0;
+introAudio.play().catch(()=>{});
+
+startGame();
+startNormalChaseAudio();
+};
+
+
+function startGame(){
+
+    score = 0;
+    scoreEl.textContent = "0";
+
+    running = true;
+    ended = false;
+
+    stunReady = true;
+    frozenUntil = 0;
+
+    speedUntil = 0;
+    slapUntil = 0;
+
+    chasePlaying = false;
+
+    // Continuous movement direction
+    heroDirection = { dx: 0, dy: 0 };
+    requestedDirection = { dx: 0, dy: 0 };
+
+
+    // ==========================================
+    // CREATE SUMIT, ARYA AND RISHABH
+    // ==========================================
+
+    const all = [
+        player(
+            0,
+            spawns[0].x,
+            spawns[0].y,
+            "#28ff8a",
+            "😎",
+            "Sumit"
+        ),
+
+        player(
+            1,
+            spawns[1].x,
+            spawns[1].y,
+            "#ff5964",
+            "🕵️",
+            "Arya"
+        ),
+
+        player(
+            2,
+            spawns[2].x,
+            spawns[2].y,
+            "#5eb7ff",
+            "😂",
+            "Rishabh"
+        )
+    ];
+
+
+    // ==========================================
+    // SELECT HERO
+    // ==========================================
+
+    hero = all[selectedHero];
+
+
+    // ==========================================
+    // REMAINING TWO BECOME AI VILLAINS
+    // ==========================================
+
+    const villains = all.filter(
+        p => p !== hero
+    );
+
+    villain1 = villains[0];
+    villain2 = villains[1];
+
+
+    // ==========================================
+    // HERO / VILLAIN APPEARANCE
+    // ==========================================
+
+    hero.color = "#28ff8a";
+    hero.emoji = "😎";
+
+    villain1.color = "#ff5964";
+    villain1.emoji = "🕵️";
+
+    villain2.color = "#5eb7ff";
+    villain2.emoji = "😂";
+
+
+    createDots();
+    createPowerUps();
+
+
+    lobby.classList.add("hidden");
+    game.classList.remove("hidden");
+    gameOver.classList.add("hidden");
+
+
+    requestAnimationFrame(loop);
+}
+
+/* =========================================================
+   GAME OVER
+========================================================= */
+function endGame() {
+
+    if (ended) return;
+
+    ended = true;
+    running = false;
+
+
+    /*
+       Stop background music.
+    */
+
+    introAudio.pause();
+    introAudio.currentTime = 0;
+
+
+    /*
+       Stop normal chase audio.
+    */
+
+    chaseEffectAudio.pause();
+    chaseEffectAudio.currentTime = 0;
+
+
+    /*
+       Stop the 4th audio.
+    */
+
+    extraChaseAudio.pause();
+    extraChaseAudio.currentTime = 0;
+
+
+    /*
+       Cancel pending 10-second timer.
+    */
+
+    if (chaseTimer) {
+
+        clearTimeout(chaseTimer);
+
+        chaseTimer = null;
+
+    }
+
+
+    /*
+       DO NOT STOP closeChaseAudio HERE.
+       It was triggered because the villain
+       actually caught the Hero.
+    */
+
+
+    finalScore.textContent = score;
+
+    gameOver.classList.remove("hidden");
+
+}
+
+
+/* =========================================================
+   RESTART
+========================================================= */
+
+document.getElementById("restart").onclick=()=>{
+
+gameOver.classList.add("hidden");
+game.classList.add("hidden");
+lobby.classList.remove("hidden");
+
+selectedHero=null;
+
+document.querySelectorAll(".character")
+.forEach(c=>c.classList.remove("selected"));
+
+document.getElementById("selection").textContent=
+"Select a character to become the Hero.";
+
+};
+
+
+/* =========================================================
+   DRAW MAZE
+========================================================= */
+
+function drawMaze(){
+
+for(let y=0;y<ROWS;y++){
+
+for(let x=0;x<COLS;x++){
+
+const px=x*TILE;
+const py=y*TILE;
+
+if(maze[y][x]==="#"){
+
+ctx.fillStyle="#111a35";
+ctx.fillRect(px,py,TILE,TILE);
+
+ctx.strokeStyle="#344a85";
+ctx.lineWidth=Math.max(1,TILE*.06);
+
+ctx.strokeRect(
+px+1,py+1,TILE-2,TILE-2
+);
+
+}else{
+
+ctx.fillStyle="#050913";
+ctx.fillRect(px,py,TILE,TILE);
+
+}
+
+}
+
+}
+
+
+/* Tunnel markers */
+
+const mid=Math.floor(ROWS/2);
+
+ctx.fillStyle="#ffd92f22";
+
+ctx.fillRect(
+0,mid*TILE,TILE,TILE
+);
+
+ctx.fillRect(
+(COLS-1)*TILE,
+mid*TILE,
+TILE,
+TILE
+);
+
+}
+
+
+/* =========================================================
+   DRAW DOTS
+========================================================= */
+
+function drawDots(){
+
+ctx.fillStyle="#ffd92f";
+
+for(const d of dots){
+
+ctx.beginPath();
+
+ctx.arc(
+d.x*TILE+TILE/2,
+d.y*TILE+TILE/2,
+Math.max(2,TILE*.11),
+0,
+Math.PI*2
+);
+
+ctx.fill();
+
+}
+
+}
+
+
+/* =========================================================
+   DRAW POWERUPS
+========================================================= */
+
+function drawPowerUps(){
+
+/* Speed */
+
+for(const t of speedTokens){
+
+const x=t.x*TILE;
+const y=t.y*TILE;
+
+ctx.fillStyle="#198cff";
+
+ctx.fillRect(
+x+TILE*.22,
+y+TILE*.22,
+TILE*.56,
+TILE*.56
+);
+
+ctx.font=`${TILE*.4}px Arial`;
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.fillText(
+"⚡",
+x+TILE/2,
+y+TILE/2
+);
+
+}
+
+
+/* Daya Slap */
+
+for(const t of slapTokens){
+
+const x=t.x*TILE;
+const y=t.y*TILE;
+
+ctx.fillStyle="#ef3048";
+
+ctx.fillRect(
+x+TILE*.22,
+y+TILE*.22,
+TILE*.56,
+TILE*.56
+);
+
+ctx.font=`${TILE*.4}px Arial`;
+
+ctx.fillText(
+"👋",
+x+TILE/2,
+y+TILE/2
+);
+
+}
+
+}
+
+
+/* =========================================================
+   DRAW PLAYER
+========================================================= */
+
+
+
+/* =========================================================
+   DRAW PLAYER IMAGE
+========================================================= */
+
+function drawPlayer(p) {
+
+    const cx = p.x * TILE + TILE / 2;
+    const cy = p.y * TILE + TILE / 2;
+
+    const size = TILE * 0.78;
+
+    /*
+       Daya Slap attack glow
+    */
+
+    if (p === hero && hero.attackMode) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            cx,
+            cy,
+            TILE * 0.48,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.strokeStyle = "#ff3048";
+
+        ctx.lineWidth = Math.max(
+            2,
+            TILE * 0.08
+        );
+
+        ctx.stroke();
+    }
+
+
+    /*
+       Player image background circle.
+       This also makes the character visible if
+       the image has transparent areas.
+    */
+
+    ctx.beginPath();
+
+    ctx.arc(
+        cx,
+        cy,
+        size / 2,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = p.color;
+
+    ctx.fill();
+
+
+    /*
+       Draw player's actual image.
+    */
+
+    if (
+        p.image &&
+        p.image.complete &&
+        p.image.naturalWidth > 0
+    ) {
+
+        ctx.save();
+
+        /*
+           Clip image into a circle.
+        */
+
+        ctx.beginPath();
+
+        ctx.arc(
+            cx,
+            cy,
+            size / 2,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.clip();
+
+        ctx.drawImage(
+            p.image,
+            cx - size / 2,
+            cy - size / 2,
+            size,
+            size
+        );
+
+        ctx.restore();
+
+    } else {
+
+        /*
+           Fallback if image fails.
+        */
+
+        ctx.font =
+            `${Math.floor(TILE * 0.45)}px Arial`;
+
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            p.emoji,
+            cx,
+            cy
+        );
+    }
+
+
+    /*
+       Hero indicator.
+    */
+
+    if (p === hero) {
+
+        ctx.fillStyle = "#28ff8a";
+
+        ctx.font =
+            `bold ${Math.max(7, TILE * 0.22)}px Arial`;
+
+        ctx.textAlign = "center";
+
+        ctx.fillText(
+            "HERO",
+            cx,
+            cy - TILE * 0.52
+        );
+    }
+
+
+    /*
+       Optional player name.
+       This makes it easier to identify
+       Sumit / Arya / Rishabh.
+    */
+
+    ctx.fillStyle = "white";
+
+    ctx.font =
+        `bold ${Math.max(6, TILE * 0.18)}px Arial`;
+
+    ctx.textAlign = "center";
+
+    ctx.fillText(
+        p.name,
+        cx,
+        cy + TILE * 0.52
+    );
+}
+/* =========================================================
+   STUN EFFECT
+========================================================= */
+
+function drawStun(){
+
+if(Date.now()<frozenUntil){
+
+ctx.fillStyle="#5eb7ff12";
+
+ctx.fillRect(
+0,0,canvas.width,canvas.height
+);
+
+ctx.fillStyle="#5eb7ff";
+
+ctx.font=`bold ${Math.max(14,TILE*.65)}px Arial`;
+
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+
+ctx.fillText(
+"⚡ VILLAINS STUNNED ⚡",
+canvas.width/2,
+TILE*.7
+);
+
+}
+
+}
+
+
+/* =========================================================
+   MAIN LOOP
+========================================================= */
+
+function loop(){
+
+if(!running)return;
+
+ctx.clearRect(
+0,0,canvas.width,canvas.height
+);
+
+drawMaze();
+drawDots();
+drawPowerUps();
+
+drawPlayer(villain1);
+drawPlayer(villain2);
+drawPlayer(hero);
+
+drawStun();
+
+updateHero();
+updateVillains();
+updatePower();
+
+if(!stunReady){
+
+if(Date.now()<frozenUntil){
+
+stunEl.textContent=
+"⚡ "+Math.ceil(
+(frozenUntil-Date.now())/1000
+)+"s";
+
+}else{
+
+stunEl.textContent="USED";
+
+}
+
+}else{
+
+stunEl.textContent="READY";
+
+}
+
+requestAnimationFrame(loop);
+
+}
+
+/* =========================================================
+   MOBILE SWIPE CONTROL
+========================================================= */
+
+let touchX = 0;
+let touchY = 0;
+
+canvas.addEventListener("touchstart", e => {
+
+    const t = e.touches[0];
+
+    touchX = t.clientX;
+    touchY = t.clientY;
+
+}, {passive:true});
+
+
+canvas.addEventListener("touchend", e => {
+
+    if (!running || ended) return;
+
+    const t = e.changedTouches[0];
+
+    const dx = t.clientX - touchX;
+    const dy = t.clientY - touchY;
+
+    if (
+        Math.max(
+            Math.abs(dx),
+            Math.abs(dy)
+        ) < 20
+    ) {
+        return;
+    }
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+
+        // Horizontal movement
+        setHeroDirection(
+            dx > 0 ? 1 : -1,
+            0
+        );
+
+    } else {
+
+        // Vertical movement
+        setHeroDirection(
+            0,
+            dy > 0 ? 1 : -1
+        );
+
+    }
+
+}, {passive:true});
+
+
+</script>
+</body>
+</html>
